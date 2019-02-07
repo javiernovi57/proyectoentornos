@@ -17,6 +17,276 @@
 				background-size: 100% auto;
 			}
 </style> 
+<script>
+ 
+var FILAS = 0;
+var COUMNAS = 0;
+var NUMMINAS = 0;
+var MATRIZ  = new Array(FILAS+2);
+var MATRIZAUXILIAR = new Array(FILAS+2);
+ 
+var MinasDescubiertas = 0;
+var PosicionesDestapadas = 0;
+ 
+function Empezar(){
+	var Filas = parseInt(document.getElementById("Filas").value);
+	var Columnas = parseInt(document.getElementById("Columnas").value);
+	var Minas = parseInt(document.getElementById("Minas").value);
+ 
+	if(Minas > (Filas*Columnas)){
+		alert("El numero de Minas es mayor al permitido");
+	}else{
+		document.getElementById("tableroPrincipal").innerHTML = "";
+		inicializacion(Filas,Columnas,Minas);
+		imprimirMatriz();
+		crearTablero();
+	}
+}
+ 
+function inicializacion(f,c,nm){
+	FILAS = f;
+	COLUMNAS = c;
+	NUMMINAS = nm;
+ 
+ 
+ 
+	for(var i = 0; i < FILAS+2; i++){
+ 
+		MATRIZ[i] = new Array(COLUMNAS+2);
+		MATRIZAUXILIAR[i] = new Array(COLUMNAS+2);
+ 
+		for(var j = 0; j < COLUMNAS+2; j++){
+			if(i == 0 || j == 0 || i == FILAS+1 || j == COLUMNAS+1){
+				MATRIZ[i][j] = -1;
+				MATRIZAUXILIAR[i][j] = -1;
+			}else{
+				MATRIZ[i][j] = 0;
+				MATRIZAUXILIAR[i][j] = 0;
+			}
+ 
+		}
+ 
+ 
+	}
+ 
+	colocarMinas();
+ 
+ 
+ 
+}
+ 
+function colocarMinas(){
+ 
+	var f = aleatorio(1,FILAS);
+	var c = aleatorio(1,COLUMNAS);
+ 
+	for(var i = 0; i < NUMMINAS; i++){
+ 
+		while(MATRIZ[f][c] > 10){
+			f = aleatorio(1,FILAS);
+			c = aleatorio(1,COLUMNAS);
+		}
+ 
+		MATRIZ[f][c] = 11;
+		MATRIZ[f-1][c-1]++;
+		MATRIZ[f-1][c]++;
+		MATRIZ[f-1][c+1]++;
+		MATRIZ[f][c+1]++;
+		MATRIZ[f+1][c+1]++;
+		MATRIZ[f+1][c]++;
+		MATRIZ[f+1][c-1]++;
+		MATRIZ[f][c-1]++;
+ 
+		MATRIZAUXILIAR[f][c] = 11;
+		MATRIZAUXILIAR[f-1][c-1]++;
+		MATRIZAUXILIAR[f-1][c]++;
+		MATRIZAUXILIAR[f-1][c+1]++;
+		MATRIZAUXILIAR[f][c+1]++;
+		MATRIZAUXILIAR[f+1][c+1]++;
+		MATRIZAUXILIAR[f+1][c]++;
+		MATRIZAUXILIAR[f+1][c-1]++;
+		MATRIZAUXILIAR[f][c-1]++;
+ 
+	}
+ 
+ 
+}
+ 
+function crearTablero(){
+ 
+	var f = FILAS * 32;
+	var c = COLUMNAS * 32;
+ 
+				tableroPrincipal.style.height = f+"px";
+				tableroPrincipal.style.width = c+"px";
+ 
+ 
+				for(var i = 1; i <= FILAS; i++){
+			        for(var j = 1; j <= COLUMNAS; j++){			           
+			            var boton = document.createElement("input");
+			            boton.type = "button";
+			            boton.id = i + "" + j;			            
+			            boton.addEventListener("click",mostrar, true);			            
+			            tableroPrincipal.appendChild(boton);
+ 
+			        }
+			    }		    
+ 
+}
+ 
+ 
+function mostrar(){
+ 
+	var a = this.id.split("");
+	var f = parseInt(a[0]);
+	var c = parseInt(a[1]);
+	var caja = document.getElementById(this.id);
+ 
+ 
+	switch (event.button){
+			case 0:
+ 
+		if(MATRIZ[f][c] != -1 && MATRIZ[f][c] < 20){
+			if(MATRIZ[f][c] > 10 && MATRIZ[f][c] < 20){
+				caja.style.backgroundImage = "url(mina.png)";
+				destaparTablero();
+			}else if(MATRIZ[f][c] == 1){
+				caja.style.color = "green";
+ 
+			}else if(MATRIZ[f][c] == 2){
+				caja.style.color = "blue";
+ 
+			}else if(MATRIZ[f][c] == 3){
+				caja.style.color = "pink";
+ 
+			}else if(MATRIZ[f][c] == 4){
+				caja.style.color = "red";
+ 
+			}else if(MATRIZ[f][c] == 5){
+				caja.style.color = "skyblue";
+ 
+			}else if(MATRIZ[f][c] == 6){
+				caja.style.color = "orange";
+ 
+			}else if(MATRIZ[f][c] == 7){
+				caja.style.color = "brown";
+ 
+			}else if(MATRIZ[f][c] == 8){
+				caja.style.color = "purple";
+ 
+			}else if(MATRIZ[f][c] == 0){
+				caja.style.color = "black";
+ 
+			}
+ 
+			caja.value = MATRIZ[f][c];
+			caja.style.backgroundColor = "white";
+			MATRIZ[f][c] = -1;
+			PosicionesDestapadas++;
+			document.getElementById("PosicionesDestapadas").innerHTML = "Posiciones Destapadas: "+PosicionesDestapadas;
+ 
+		}	
+			break;
+			case 1:
+ 
+			if(MATRIZ[f][c] >= 20 && MATRIZ[f][c] != -1){
+				MATRIZ[f][c] -= 20;
+				caja.style.backgroundImage = "none";
+				MinasDescubiertas--;
+				document.getElementById("MinasDescubiertas").innerHTML = "Minas Descubiertas: "+MinasDescubiertas;
+			}else if(MATRIZ[f][c] < 20 && MATRIZ[f][c] != -1){
+				MATRIZ[f][c] += 20;
+				caja.style.backgroundImage = "url(bandera.jpg)";
+				MinasDescubiertas++;
+				document.getElementById("MinasDescubiertas").innerHTML = "Minas Descubiertas: "+MinasDescubiertas;
+			}
+ 
+ 
+ 
+ 
+			break;
+				}
+ 
+ 
+}
+ 
+function destaparTablero(){
+ 
+	alert("Perdiste el juego!");
+ 
+	for(var f = 1; f <= FILAS; f++){
+		for(var c = 1; c <= COLUMNAS; c++){
+			var caja = document.getElementById(f+""+c);
+ 
+			if(MATRIZ[f][c] >= 20){
+				MATRIZ[f][c] -= 20;
+				caja.style.backgroundImage = "none";
+			}
+ 
+			if(MATRIZ[f][c] != -1 && MATRIZ[f][c] < 20){
+					if(MATRIZ[f][c] > 10 && MATRIZ[f][c] < 20){
+						caja.style.backgroundImage = "url(mina.png)";
+					}else if(MATRIZ[f][c] == 1){
+						caja.style.color = "green";
+					}else if(MATRIZ[f][c] == 2){
+						caja.style.color = "blue";
+					}else if(MATRIZ[f][c] == 3){
+						caja.style.color = "pink";
+					}else if(MATRIZ[f][c] == 4){
+						caja.style.color = "red";
+					}else if(MATRIZ[f][c] == 5){
+						caja.style.color = "skyblue";
+					}else if(MATRIZ[f][c] == 6){
+						caja.style.color = "orange";
+					}else if(MATRIZ[f][c] == 7){
+						caja.style.color = "brown";
+					}else if(MATRIZ[f][c] == 8){
+						caja.style.color = "purple";
+					}else if(MATRIZ[f][c] == 0){
+						caja.style.color = "black";
+					}
+ 
+					caja.style.backgroundColor = "white";
+ 
+					caja.value = MATRIZ[f][c];
+					MATRIZ[f][c] = -1;
+			}	
+		}
+	}
+}
+ 
+function reiniciar(){
+ 
+	for(var f = 0; f < FILAS+2; f++){
+		for(var c = 0; c < COLUMNAS+2; c++){
+ 
+			MATRIZ[f][c] = MATRIZAUXILIAR[f][c];
+		}
+	}
+	document.getElementById("tableroPrincipal").innerHTML = "";
+	document.getElementById("MinasDescubiertas").innerHTML = "";
+	document.getElementById("PosicionesDestapadas").innerHTML = "";
+	crearTablero();
+	MinasDescubiertas = 0;
+	PosicionesDestapadas = 0;
+}
+ 
+ 
+function imprimirMatriz(){
+ 
+	for(var i = 1; i <= FILAS; i++){
+		for(var j = 1; j <= COLUMNAS; j++){
+			console.log(MATRIZAUXILIAR[i][j]+". ");
+		}
+		console.log("n");
+	}
+}
+ 
+function aleatorio(min, max){		
+	return Math.floor(Math.random() * (max - min + 1) + min);
+}
+ 
+</script>
 </head>
 <body>
 			<div id = "parametros">
